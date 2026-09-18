@@ -175,6 +175,14 @@ This template deliberately stops at scanning locally. These cover the rest of th
 - [`axe-scan-action`](https://github.com/pattonwebz/axe-scan-action) — scan URLs with axe-core in CI and save raw JSON results. Runs on the preinstalled Chrome, so there is no browser download.
 - [`theme-accessibility-ready-checks`](https://github.com/pattonwebz/theme-accessibility-ready-checks) — the same idea applied to the full WordPress "accessibility-ready" theme standard, across 1,000+ checks on desktop and mobile viewports.
 
+## Background
+
+This template came out of a talk and a write-up on the same idea.
+
+**[WCAG in CI/CD: Catch Accessibility Bugs Like Any Other Bug](https://pattonwebz.github.io/wcag-in-ci-cd-catch-accessibility-bugs-like-any-other/)** — a WP Accessibility Day 2026 talk on adding automated WCAG checks to a WordPress plugin workflow using GitHub Actions, Docker, Playwright and axe-core, without turning accessibility into a separate last-minute task. It covers what the automation catches and what still needs a human, and closes with a persona-based reporting layer inspired by the GOV.UK accessibility personas, so a team can see who is affected rather than just what failed. The [deck source](https://github.com/pattonwebz/wcag-in-ci-cd-catch-accessibility-bugs-like-any-other) is public, and `S` inside the deck opens speaker notes.
+
+**[Stop Missing Accessibility Bugs: Scan Page States with axe-core + Playwright](https://www.pattonwebz.com/tools-of-the-trade/stop-missing-accessibility-bugs-scan-page-states-with-axe-core-playwright/)** — the write-up this template is built from. It explains why scanning a page only in its default state misses real issues, and walks through the three pieces: the `scanTargets` list, the named interaction registry, and running the interaction before `axe.analyze()`.
+
 ## License
 
 [MIT](./LICENSE)
