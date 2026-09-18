@@ -1,0 +1,33 @@
+{
+  "name": "axe-playwright-states",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Template for scanning interactive page states with axe-core and Playwright.",
+  "type": "module",
+  "license": "MIT",
+  "author": "William Patton",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:grep": "playwright test --grep",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "axe-core",
+    "playwright",
+    "wcag"
+  ],
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.13.5",
+    "typescript": "^5.9.3"
+  }
+}

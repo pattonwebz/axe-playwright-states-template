@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Example site - axe-playwright-states</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <p class="brand">Example Co</p>
+    </header>
+
+    <main>
+      <h1>Newsletter signup</h1>
+      <p>
+        This page scans clean in its default state. Open the signup modal and axe-core
+        finds something new. The
+        <a href="https://www.pattonwebz.com/tools-of-the-trade/stop-missing-accessibility-bugs-scan-page-states-with-axe-core-playwright/"
+          >write-up behind this template</a
+        >
+        explains why.
+      </p>
+      <button id="signup-trigger" type="button">Open signup</button>
+    </main>
+
+    <div class="modal-backdrop" id="signup-modal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="signup-modal-title">
+        <!-- Deliberately inaccessible: an empty button with a background icon has no
+             accessible name. axe-core can only see it while the modal is open. -->
+        <button class="modal-close" id="signup-modal-close" type="button"></button>
+        <h2 id="signup-modal-title">Join the newsletter</h2>
+        <p>One email a month, no spam.</p>
+        <form>
+          <label for="signup-email">Email address</label>
+          <input id="signup-email" name="email" type="email" autocomplete="email" />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
