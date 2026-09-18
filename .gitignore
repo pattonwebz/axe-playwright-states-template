@@ -2,5 +2,6 @@ node_modules/
 test-results/
 playwright-report/
 blob-report/
+a11y-results/
 playwright/.cache/
 .env

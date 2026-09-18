@@ -14,7 +14,9 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:grep": "playwright test --grep",
-    "report": "playwright show-report",
+    "report:md": "node scripts/collect-axe-results.mjs && axe-a11y-report --results-file=a11y-results/axe-results.json --show-personas --out=a11y-results/report.md",
+    "report:html": "node scripts/collect-axe-results.mjs && axe-a11y-report --results-file=a11y-results/axe-results.json --title=\"Accessibility report\" --out=a11y-results/report.html",
+    "report:playwright": "playwright show-report",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
@@ -26,6 +28,7 @@
   ],
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@pattonwebz/axe-a11y-report": "^1.2.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^24.13.5",
     "typescript": "^5.9.3"

@@ -1,7 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { interactions } from '../a11y/interactions';
 import { scanTargets } from '../a11y/targets';
+
+// Playwright empties outputDir at the start of every run, so raw scans never go stale.
+const rawResultsDir = join('test-results', 'a11y-raw');
 
 type Violation = {
   id: string;
@@ -22,8 +27,27 @@ function formatViolations(violations: Violation[]) {
     .join('\n');
 }
 
+function slugify(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+/**
+ * Write one raw axe-core result per scan, for `npm run report:md` / `report:html`.
+ *
+ * A state cannot be expressed as a URL, and the report generators group by the `url`
+ * field, so the label carries the target name, the state and the viewport. Including
+ * the real URL would make it undialable anyway, so the label stays plain text.
+ */
+function writeScanResult(label: string, results: unknown) {
+  mkdirSync(rawResultsDir, { recursive: true });
+  writeFileSync(
+    join(rawResultsDir, `${slugify(label)}.json`),
+    JSON.stringify({ url: label, results }, null, 2),
+  );
+}
+
 for (const target of scanTargets) {
-  test(target.name, async ({ page }) => {
+  test(target.name, async ({ page }, testInfo) => {
     await page.goto(target.path, { waitUntil: 'networkidle' });
 
     if (target.state) {
@@ -43,6 +67,9 @@ for (const target of scanTargets) {
     }
 
     const results = await builder.analyze();
+
+    // Written before the assertion below, so failing scans are reported too.
+    writeScanResult(`${target.name} (${testInfo.project.name})`, results);
 
     expect(
       results.violations,

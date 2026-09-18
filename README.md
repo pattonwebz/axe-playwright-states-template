@@ -128,6 +128,36 @@ Absolute URLs work too, in which case `path` is used as-is and `baseURL` is igno
 A11Y_CHANNEL=chrome npm test
 ```
 
+## Generating a report
+
+Playwright already tells you pass or fail per target. When you want something a person can read — especially a non-technical stakeholder — the raw axe-core results are collected and handed to [`@pattonwebz/axe-a11y-report`](https://github.com/pattonwebz/axe-a11y-report), which is wired up here as a dev dependency.
+
+```bash
+npm test
+npm run report:md     # a11y-results/report.md
+npm run report:html   # a11y-results/report.html — self-contained, opens from file://
+```
+
+Each scan writes its raw axe-core result to `test-results/a11y-raw/` — a directory Playwright empties at the start of every run, so raw scans never go stale. `report:*` merges those into a single `a11y-results/axe-results.json` array and runs the generator over it. That file is the array-of-axe-results shape the wider axe tooling expects, so you can feed it to anything else that reads axe JSON.
+
+The markdown report includes a persona section mapping each violated rule to the GOV.UK accessibility personas, so alongside `button-name` you get who it affects and why.
+
+The generator exits non-zero when findings meet its threshold (default `serious`), so it works as a gate on its own. Extra flags pass through:
+
+```bash
+npm run report:md -- --fail-on=critical
+```
+
+In GitHub Actions, add `--github-summary` to append the markdown to the job summary. If you would rather not run Playwright in CI, [`axe-scan-action`](https://github.com/pattonwebz/axe-scan-action) scans URLs directly and emits the same shape, and [`axe-report-action`](https://github.com/pattonwebz/axe-report-action) and [`axe-html-report-action`](https://github.com/pattonwebz/axe-html-report-action) wrap this same generator as Actions.
+
+### Why the report is labelled, not linked
+
+The generators group results by a `url` field, but a state is not addressable: "the signup modal, open" has no URL. Labelling the entry with the page URL anyway would be misleading, because following that link shows a page that passes — the exact false confidence this template exists to remove.
+
+So each entry is labelled `Target name (viewport)`, which means the generator renders it as plain text rather than a link (its `safeHref` only links `http`/`https`). You get `Homepage, signup modal open (desktop)` as a row, and nothing in the report is a broken or lying link.
+
+If you would rather keep clickable links and encode the state as a URL fragment, change the `url` field in `writeScanResult()` in `tests/a11y.spec.ts` — but the link then will not reproduce the state it describes.
+
 ## Conventions that keep this reliable
 
 - **Name states by intent** (`openSignupModal`, not `step2`) so you can identify them in the code and in failures.
@@ -144,7 +174,9 @@ A11Y_CHANNEL=chrome npm test
 | `npm run test:headed` | Run with a visible browser |
 | `npm run test:debug` | Playwright inspector |
 | `npm run test:grep <pattern>` | Run targets whose title matches, e.g. `npm run test:grep modal` |
-| `npm run report` | Open the last HTML report |
+| `npm run report:md` | Merge the raw scans into a Markdown report, with persona mapping |
+| `npm run report:html` | Merge the raw scans into a self-contained HTML dashboard |
+| `npm run report:playwright` | Open the last Playwright HTML report |
 | `npm run typecheck` | Type-check without emitting |
 
 ## Project structure
@@ -152,16 +184,19 @@ A11Y_CHANNEL=chrome npm test
 ```
 axe-playwright-states/
 ├── a11y/
-│   ├── targets.ts        # pages to scan, each with an optional state
-│   └── interactions.ts   # named state interactions
+│   ├── targets.ts              # pages to scan, each with an optional state
+│   └── interactions.ts         # named state interactions
 ├── tests/
-│   └── a11y.spec.ts      # generic runner loop
-├── examples/site/        # throwaway demo site (delete once you point at your own)
+│   └── a11y.spec.ts            # generic runner loop
+├── examples/site/              # throwaway demo site (delete once you point at your own)
 ├── scripts/
-│   └── serve-example.mjs # zero-dependency static server for the demo
+│   ├── serve-example.mjs       # zero-dependency static server for the demo
+│   └── collect-axe-results.mjs # merge raw scans for the report generators
 ├── playwright.config.ts
 └── tsconfig.json
 ```
+
+`test-results/` and `a11y-results/` are generated and gitignored.
 
 ## Limitations
 
@@ -171,8 +206,8 @@ This is a sweep, not a guarantee. axe-core catches the automatable subset of WCA
 
 This template deliberately stops at scanning locally. These cover the rest of the pipeline:
 
-- [`axe-a11y-report`](https://github.com/pattonwebz/axe-a11y-report) — turn axe-core JSON into Markdown or a self-contained HTML dashboard, with optional GOV.UK/GDS persona mapping.
-- [`axe-scan-action`](https://github.com/pattonwebz/axe-scan-action) — scan URLs with axe-core in CI and save raw JSON results. Runs on the preinstalled Chrome, so there is no browser download.
+- [`axe-a11y-report`](https://github.com/pattonwebz/axe-a11y-report) — the report generator wired up above, also packaged as [`axe-report-action`](https://github.com/pattonwebz/axe-report-action) and [`axe-html-report-action`](https://github.com/pattonwebz/axe-html-report-action) for CI.
+- [`axe-scan-action`](https://github.com/pattonwebz/axe-scan-action) — scan URLs with axe-core in CI and save raw JSON results, in the same shape this template writes. Runs on the preinstalled Chrome, so there is no browser download.
 - [`theme-accessibility-ready-checks`](https://github.com/pattonwebz/theme-accessibility-ready-checks) — the same idea applied to the full WordPress "accessibility-ready" theme standard, across 1,000+ checks on desktop and mobile viewports.
 
 ## Background
