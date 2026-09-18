@@ -169,7 +169,11 @@ This is a sweep, not a guarantee. axe-core catches the automatable subset of WCA
 
 ## Related
 
-[`@pattonwebz/axe-playwright`](https://github.com/pattonwebz/squads-general/tree/main/packages/axe-playwright) is a separate, config-driven CLI and library for scanning many pages and generating aggregated reports. This template is the Playwright-native, states-first counterpart.
+This template deliberately stops at scanning locally. These cover the rest of the pipeline:
+
+- [`axe-a11y-report`](https://github.com/pattonwebz/axe-a11y-report) — turn axe-core JSON into Markdown or a self-contained HTML dashboard, with optional GOV.UK/GDS persona mapping.
+- [`axe-scan-action`](https://github.com/pattonwebz/axe-scan-action) — scan URLs with axe-core in CI and save raw JSON results. Runs on the preinstalled Chrome, so there is no browser download.
+- [`theme-accessibility-ready-checks`](https://github.com/pattonwebz/theme-accessibility-ready-checks) — the same idea applied to the full WordPress "accessibility-ready" theme standard, across 1,000+ checks on desktop and mobile viewports.
 
 ## License
 
